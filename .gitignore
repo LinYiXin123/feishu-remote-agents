@@ -1,0 +1,17 @@
+.cc-connect/
+.playwright-cli/
+cc-connect-data/
+cc-connect/
+npm-global/
+outbox/
+cc-connect-new.exe
+cc-connect.console.log
+cc-connect.error.log
+cc-connect.pid
+feishu-token-body.json
+*.bak
+*.lock
+*.tmp
+cc-config/config.toml
+cc-config/config.toml.bak*
+restore-secrets.local.md

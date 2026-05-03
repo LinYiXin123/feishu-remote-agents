@@ -1,0 +1,199 @@
+# Copy this file to:
+# F:/cc-agent/cc-config/config.toml
+# Then replace all placeholder values with your real credentials.
+
+language = "zh"
+data_dir = "F:/cc-agent/cc-connect-data"
+
+[log]
+level = "debug"
+
+[display]
+thinking_messages = false
+tool_messages = false
+show_context_indicator = false
+reply_footer = false
+
+[stream_preview]
+enabled = false
+
+[[projects]]
+name = "cc-codex"
+show_context_indicator = false
+reply_footer = false
+admin_from = "YOUR_FEISHU_OPEN_ID"
+disabled_commands = []
+
+[projects.agent]
+type = "codex"
+
+[projects.agent.options]
+work_dir = "F:/远程连接agent"
+mode = "yolo"
+cli_path = "D:/nodejs/npm_global/codex.cmd"
+
+[[projects.platforms]]
+type = "feishu"
+
+[projects.platforms.options]
+app_id = "YOUR_CODEX_APP_ID"
+app_secret = "YOUR_CODEX_APP_SECRET"
+allow_from = "*"
+allow_chat = "*"
+group_reply_all = false
+share_session_in_channel = true
+resolve_mentions = true
+progress_style = "compact"
+
+[[projects]]
+name = "cc-claude"
+show_context_indicator = false
+reply_footer = false
+admin_from = "YOUR_FEISHU_OPEN_ID"
+disabled_commands = []
+
+[projects.agent]
+type = "claudecode"
+
+[projects.agent.options]
+work_dir = "F:/远程连接agent"
+mode = "bypassPermissions"
+cli_path = "F:/claude-global/claude.cmd"
+
+[[projects.platforms]]
+type = "feishu"
+
+[projects.platforms.options]
+app_id = "YOUR_CLAUDE_APP_ID"
+app_secret = "YOUR_CLAUDE_APP_SECRET"
+allow_from = "*"
+allow_chat = "*"
+group_reply_all = false
+share_session_in_channel = true
+resolve_mentions = true
+progress_style = "compact"
+
+[[projects]]
+name = "cc-mimo"
+show_context_indicator = false
+reply_footer = false
+admin_from = "YOUR_FEISHU_OPEN_ID"
+disabled_commands = []
+
+[projects.agent]
+type = "claudecode"
+
+[projects.agent.options]
+work_dir = "F:/远程连接agent"
+mode = "bypassPermissions"
+cli_path = "F:/claude-global/claude.cmd"
+provider = "mimo"
+
+[[projects.agent.providers]]
+name = "mimo"
+api_key = "YOUR_MIMO_API_KEY"
+base_url = "https://token-plan-cn.xiaomimimo.com/anthropic"
+model = "mimo-v2.5-pro"
+thinking = "disabled"
+
+[[projects.agent.providers.models]]
+model = "mimo-v2.5-pro"
+alias = "pro"
+
+[[projects.platforms]]
+type = "feishu"
+
+[projects.platforms.options]
+app_id = "YOUR_MIMO_APP_ID"
+app_secret = "YOUR_MIMO_APP_SECRET"
+allow_from = "*"
+allow_chat = "*"
+group_reply_all = false
+share_session_in_channel = true
+resolve_mentions = true
+progress_style = "compact"
+
+[[projects]]
+name = "cc-deepseek"
+show_context_indicator = false
+reply_footer = false
+admin_from = "YOUR_FEISHU_OPEN_ID"
+disabled_commands = []
+
+[projects.agent]
+type = "claudecode"
+
+[projects.agent.options]
+work_dir = "F:/远程连接agent"
+mode = "bypassPermissions"
+cli_path = "F:/claude-global/claude.cmd"
+provider = "deepseek"
+
+[[projects.agent.providers]]
+name = "deepseek"
+api_key = "YOUR_DEEPSEEK_API_KEY"
+base_url = "https://api.deepseek.com/anthropic"
+model = "deepseek-v4-flash"
+
+[[projects.agent.providers.models]]
+model = "deepseek-v4-flash"
+alias = "flash"
+
+[[projects.platforms]]
+type = "feishu"
+
+[projects.platforms.options]
+app_id = "YOUR_DEEPSEEK_APP_ID"
+app_secret = "YOUR_DEEPSEEK_APP_SECRET"
+allow_from = "*"
+allow_chat = "*"
+group_reply_all = false
+share_session_in_channel = true
+resolve_mentions = true
+progress_style = "compact"
+
+[[projects]]
+name = "cc-doubao"
+show_context_indicator = false
+reply_footer = false
+admin_from = "YOUR_FEISHU_OPEN_ID"
+disabled_commands = []
+
+[projects.agent]
+type = "codex"
+
+[projects.agent.options]
+work_dir = "F:/远程连接agent"
+mode = "yolo"
+cli_path = "D:/nodejs/npm_global/codex.cmd"
+provider = "doubao"
+
+[[projects.agent.providers]]
+name = "doubao"
+api_key = "YOUR_DOUBAO_API_KEY"
+base_url = "https://ark.cn-beijing.volces.com/api/v3"
+model = "doubao-seed-2-0-lite-260215"
+
+[projects.agent.providers.codex]
+wire_api = "chat"
+
+[[projects.agent.providers.models]]
+model = "doubao-seed-2-0-lite-260215"
+alias = "lite"
+
+[[projects.platforms]]
+type = "feishu"
+
+[projects.platforms.options]
+app_id = "YOUR_DOUBAO_APP_ID"
+app_secret = "YOUR_DOUBAO_APP_SECRET"
+allow_from = "*"
+allow_chat = "*"
+group_reply_all = false
+share_session_in_channel = true
+resolve_mentions = true
+progress_style = "compact"
+
+[relay]
+timeout_secs = 900
+
