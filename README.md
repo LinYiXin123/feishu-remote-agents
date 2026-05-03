@@ -1,42 +1,453 @@
-# Feishu Remote Agents Backup
+# 飞书远程多智能体控制项目
 
-This repository stores the reusable parts of the local Feishu remote-agent setup on drive `F:`.
+![README Hero](docs/images/readme-hero.png)
 
-## What is included
+一个面向个人电脑场景的 `Feishu + cc-connect + 多模型 Agent` 远程控制方案。  
+你可以直接用手机飞书给本地 Windows 电脑上的多个 AI 机器人发指令，让它们帮你读文件、整理资料、生成 Excel、发送文件、协同完成任务。
 
-- `AGENTS.md` and `CLAUDE.md` runtime rules
-- startup and watcher scripts
-- file sending helper script
-- a sanitized config template
-- restore instructions
+> 适合人群：新手小白、个人开发者、想用手机远程控制本地 AI 工具的人  
+> 当前支持：`Codex`、`Claude`、`MiMo`、`DeepSeek`、`Doubao`
 
-## What is not included
+---
 
-- live session data
-- logs
-- uploaded attachments
-- app secrets, API keys, or local auth tokens
+## 1. 项目效果
 
-## Restore after reinstall
+### 1.1 多机器人在飞书中同时在线
 
-1. Restore these folders to the same drive layout if possible:
-   - `F:\远程连接agent`
-   - `F:\cc-agent`
-   - `F:\cc-global`
-   - `F:\claude-global`
-2. Copy `cc-config\\config.template.toml` to `F:\cc-agent\cc-config\config.toml`.
-3. Fill in your Feishu app IDs, app secrets, and model API keys.
-4. Run:
+![飞书机器人列表](docs/images/feishu-bot-list.jpg)
+
+### 1.2 多 Agent 在群聊里分工协作
+
+![多智能体协作示例](docs/images/group-collaboration.jpg)
+
+### 1.3 功能总览图
+
+![功能总览图](docs/images/feature-overview.png)
+
+### 1.4 工作流程图
+
+![工作流程图](docs/images/workflow-overview.png)
+
+### 1.5 项目形象图
+
+![项目形象图](docs/images/hero-reference.jpg)
+
+---
+
+## 2. 这个项目能做什么
+
+这个项目的核心目标很简单：
+
+- 让你通过手机飞书，远程指挥本地电脑上的多个 AI Agent
+- 让不同 Agent 各自负责不同任务
+- 让 Agent 能读取电脑文件、生成结果、再把文件发回飞书
+- 让电脑重启或重新登录后，机器人还能自动恢复在线
+
+你可以把它理解成：
+
+> 把本地的 `Codex / Claude / 多个模型代理`，包装成你自己的飞书远程 AI 助手系统。
+
+如果你是第一次接触这种项目，也可以直接这样理解：
+
+- 飞书 = 你发消息的入口
+- `cc-connect` = 消息转发中间层
+- 本地 Agent = 真正干活的智能体
+- 文件回传 = 把电脑上的结果再发回手机
+
+---
+
+## 3. 当前支持的能力
+
+### 3.1 基础能力
+
+- 飞书私聊机器人
+- 飞书群聊 `@` 指定机器人
+- 多机器人同时在线
+- 本地命令执行
+- 本地文件读取
+- 文件结果回传
+- 多 Agent 协作转交
+- 开机后自动恢复在线
+
+这意味着你可以直接在手机上完成下面这些事：
+
+- 让机器人查看桌面文件
+- 让机器人生成 Excel 再发回来
+- 让一个机器人执行，另一个机器人检查
+- 让机器人整理本地资料并输出结果
+
+### 3.2 文件能力
+
+支持常见和非常见文件类型，包括但不限于：
+
+- `doc / docx`
+- `pdf`
+- `xlsx / csv`
+- `zip`
+- `json / html / txt`
+- `exe / apk`
+- 图片、音频、视频
+- 其它未知后缀文件
+
+说明：
+
+- 飞书单文件上传实际建议不超过 `30MB`
+- 文件过大时，可以先压缩再发送
+- 当前规则已优先使用会话绑定方式回传文件，避免发错聊天窗口
+
+### 3.3 多模型/多机器人
+
+当前项目中已整理的机器人角色：
+
+- `LYX-Codex`
+- `LYX-Claude`
+- `LYX-MiMo`
+- `LYX-DeepSeek`
+- `LYX-Doubao`
+
+你后续也可以继续扩展更多机器人。
+
+---
+
+## 4. 项目结构说明
+
+这个仓库保存的是“可恢复、可迁移”的核心工程内容，不直接保存你的真实密钥和运行时数据。
+
+```text
+F:\远程连接agent
+├─ AGENTS.md                      # Codex/Feishu 侧行为规则
+├─ CLAUDE.md                      # Claude/Feishu 侧行为规则
+├─ README.md                      # 项目说明文档
+├─ run-cc-connect.cmd             # 快速启动入口
+├─ start-cc-connect.ps1           # 启动脚本
+├─ watch-cc-connect.ps1           # 守护脚本
+├─ send-any-file.ps1              # 任意文件发送脚本
+├─ cc-config/
+│  └─ config.template.toml        # 脱敏配置模板
+├─ docs/
+│  └─ images/                     # README 展示图片
+└─ restore-secrets.example.md     # 重装后恢复说明
+```
+
+---
+
+## 5. 运行原理
+
+整体流程如下：
+
+1. 你在手机飞书里给某个机器人发消息
+2. 飞书把消息推送到对应机器人应用
+3. `cc-connect` 在本地接收到消息
+4. 本地把任务交给对应的 Agent（Codex / Claude / 其它模型）
+5. Agent 在电脑上执行读取文件、生成内容、整理结果等操作
+6. 如果产生文件，就通过 `cc-connect send` 发回当前飞书会话
+
+简单理解就是：
+
+> 飞书负责“下发任务”，本地 Agent 负责“干活”，`cc-connect` 负责“中转和回传”。
+
+如果你完全是新手，只记住一句话也够用：
+
+> 这套系统本质上就是“手机发命令，本地电脑执行，结果再回到手机”。
+
+---
+
+## 6. 环境要求
+
+为了让这套东西正常运行，你至少需要准备：
+
+- Windows 电脑
+- 飞书开发者应用
+- `cc-connect`
+- 本地 `Codex`
+- 本地 `Claude Code`（如果要用 Claude / MiMo / DeepSeek 这类兼容链路）
+- Node.js
+- PowerShell
+
+建议保持以下目录结构：
+
+```text
+F:\远程连接agent
+F:\cc-agent
+F:\cc-global
+F:\claude-global
+```
+
+这样可以尽量少占用 `C` 盘。
+
+---
+
+## 7. 如何恢复使用（新手版）
+
+如果你重装系统，或者换电脑后想尽快恢复，按下面做：
+
+### 第一步：恢复目录
+
+把这些目录恢复到本地：
+
+- `F:\远程连接agent`
+- `F:\cc-agent`
+- `F:\cc-global`
+- `F:\claude-global`
+
+如果你不想折腾目录，也建议尽量保持和原项目相同的盘符结构，这样恢复成本最低。
+
+### 第二步：恢复配置文件
+
+把下面这个模板复制成真实配置：
+
+```text
+F:\远程连接agent\cc-config\config.template.toml
+→
+F:\cc-agent\cc-config\config.toml
+```
+
+然后把你自己的内容填进去：
+
+- 飞书 `App ID`
+- 飞书 `App Secret`
+- 各模型 `API Key`
+- 你的 `admin_from`
+
+### 第三步：启动服务
+
+执行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File F:\cc-agent\start-cc-connect.ps1
 ```
 
-5. Confirm `cc-connect` is online and then test each bot in Feishu.
+如果你看到服务已经运行，不需要重复多次启动。
 
-## Notes
+### 第四步：测试机器人
 
-- Current auto-start is configured through the Windows Startup folder shortcut.
-- A scheduled-task startup path would be stronger, but it requires Windows admin rights.
-- File sending is designed to use the current `CC_SESSION_KEY` when triggered from inside a bot session.
+在飞书里分别测试：
 
+- `你好`
+- `帮我看看桌面有哪些 PDF`
+- `把第一个 PDF 发给我`
+
+如果这些正常，说明系统已经恢复成功。
+
+建议你每个机器人都至少测一次：
+
+- `LYX-Codex`
+- `LYX-Claude`
+- `LYX-MiMo`
+- `LYX-DeepSeek`
+- `LYX-Doubao`
+
+---
+
+## 8. 自动启动说明
+
+当前项目已经配置了“登录 Windows 后自动恢复在线”的能力。
+
+实现方式：
+
+- Windows 启动文件夹快捷方式
+- `start-cc-connect.ps1`
+- `watch-cc-connect.ps1`
+
+特点：
+
+- 电脑开机后，只要你登录 Windows，机器人就会自动拉起
+- 即使 `cc-connect` 意外退出，守护脚本也会尝试重新拉起
+- 当前方案不依赖复杂服务部署，更适合新手个人电脑
+
+通俗理解就是：
+
+- 电脑开机
+- 你登录 Windows
+- 机器人自动上线
+- 手机飞书就能继续用
+
+注意：
+
+- 如果你追求“未登录系统前也自动启动”，通常需要管理员权限配置计划任务或系统服务
+- 本项目目前主打“新手可维护、个人可用”
+
+---
+
+## 9. 文件发送说明
+
+项目内已经整理了任意文件发送脚本：
+
+- [send-any-file.ps1](send-any-file.ps1)
+
+推荐逻辑：
+
+- 在 Bot 内优先用 `cc-connect send --file ...`
+- 使用当前 `CC_PROJECT` 和 `CC_SESSION_KEY`
+- 确保文件回传到当前正确的飞书聊天窗口
+
+如果文件是文件夹：
+
+1. 先压缩
+2. 再发送压缩包
+
+如果文件大于 `30MB`：
+
+- 先拆分
+- 或者压缩
+- 或者只发精简结果
+
+---
+
+## 10. 图像生成说明
+
+这个项目里“图像生成”要分清楚两种情况：
+
+### 10.1 原生生图
+
+如果模型链路本身支持图片生成，可以直接调用。
+
+### 10.2 失败兜底
+
+如果出现下面这些情况：
+
+- `401 Unauthorized`
+- 空响应
+- 当前模型不支持原生生图
+
+项目规则会建议走兜底方式：
+
+- 生成本地图片文件
+- 再把图片文件发送回飞书
+
+也就是说：
+
+> 即使某个模型的原生生图不稳定，也不代表这个项目完全不能“出图”。
+
+这也是为什么 README 里会同时放：
+
+- 真实运行截图
+- AI 生成的展示图
+- 工作流说明图
+
+这样新用户更容易看懂项目用途。
+
+---
+
+## 11. 多 Agent 协作玩法
+
+这个项目很适合下面这种任务流：
+
+- `@Claude 先做任务`
+- `@Codex 检查 Claude 的结果`
+- `@DeepSeek 读取本地资料`
+- `@Doubao 整理成可读说明`
+
+你也可以这样安排：
+
+- 一个 Agent 负责执行
+- 一个 Agent 负责复核
+- 一个 Agent 负责回传文件
+
+这种模式特别适合：
+
+- 文件整理
+- 论文辅助
+- Excel 数据整理
+- 本地资料汇总
+- 多步骤任务拆分
+
+你可以把它理解成一个“AI 小团队”：
+
+- 一个负责执行
+- 一个负责复核
+- 一个负责查资料
+- 一个负责回传文件
+
+---
+
+## 12. 仓库里不包含什么
+
+为了安全，这个仓库默认不包含：
+
+- 真实 API Key
+- 真实飞书 Secret
+- 本地会话记录
+- 运行日志
+- 上传缓存
+- 临时附件
+
+也就是说，这个仓库是：
+
+> 一个“可恢复项目模板”，不是“把你整台电脑的所有隐私都打包上云”。
+
+---
+
+## 13. 常见问题
+
+### 13.1 为什么机器人能读文件，但发文件失败？
+
+通常不是没权限，而是没有绑定到当前会话。  
+现在的规则已经优先使用 `CC_SESSION_KEY` 来回传，稳定性会比只写 `--project` 更好。
+
+### 13.2 为什么有些模型回复更聪明，有些更弱？
+
+这和模型本身能力有关，也和它接入方式有关：
+
+- 文本能力：和模型强相关
+- 文件操作能力：和本地规则、脚本、会话绑定强相关
+- 图像生成能力：和模型支持 + 接口鉴权都相关
+
+### 13.3 为什么图片生成有时失败？
+
+常见原因：
+
+- 提供商不支持
+- 鉴权失败
+- 当前链路只支持文本
+
+这时建议用“本地生成图片文件后发送”的方式兜底。
+
+### 13.4 为什么建议放在 F 盘？
+
+因为：
+
+- 配置、日志、运行数据比较多
+- 放在 `F` 盘更方便迁移
+- 可以尽量减少 `C` 盘占用
+
+---
+
+## 14. 适合谁
+
+如果你符合下面任何一种情况，这个项目会很好用：
+
+- 想用手机远程控制本地 AI
+- 想做多智能体协作
+- 想把本地 `Codex / Claude` 变成飞书机器人
+- 想做个人 AI 助手系统
+- 想保留“本地能力”而不是全放云端
+
+---
+
+## 15. 后续可以继续扩展什么
+
+这个项目后面还能继续加：
+
+- 更多模型
+- 更多群聊协作策略
+- 更强的浏览器自动化
+- 更丰富的图像/文档处理
+- 自动提醒与定时任务
+- 更完整的 Web 管理面板
+
+---
+
+## 16. 当前仓库定位
+
+当前 GitHub 仓库定位不是“官方发布版产品”，而是：
+
+- 你的个人多智能体远程控制工程备份
+- 一套可迁移、可恢复、可继续扩展的基础设施
+- 一个适合继续迭代的实战项目
+
+如果你后续继续完善，这个仓库也很适合拿来作为：
+
+- 个人作品集项目
+- 校招项目展示
+- 多 Agent 协作实战案例
