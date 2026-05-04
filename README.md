@@ -483,8 +483,8 @@ powershell -ExecutionPolicy Bypass -File F:\远程连接agent\gui\FeishuRemoteCo
 
 如果你后续继续完善，这个仓库也很适合拿来作为：
 
-- 个人作品集项目
-- 校招项目展示
+- 个人效率工具项目
+- 面向大众用户的多智能体协作项目
 - 多 Agent 协作实战案例
 
 
