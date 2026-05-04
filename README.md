@@ -6,7 +6,7 @@
 你可以直接用手机飞书给本地 Windows 电脑上的多个 AI 机器人发指令，让它们帮你读文件、整理资料、生成 Excel、发送文件、协同完成任务。
 
 > 适合人群：新手小白、个人开发者、想用手机远程控制本地 AI 工具的人  
-> 当前支持：`Codex`、`Claude`、`MiMo`、`DeepSeek`、`Doubao`
+> 当前支持：`Codex`、`Claude`，以及你自行接入的任意兼容模型机器人
 
 ---
 
@@ -161,7 +161,7 @@ F:\远程连接agent
 - 飞书开发者应用
 - `cc-connect`
 - 本地 `Codex`
-- 本地 `Claude Code`（如果要用 Claude / MiMo / DeepSeek 这类兼容链路）
+- 本地 `Claude Code`（如果要用 Claude 兼容链路或其他兼容接口）
 - Node.js
 - PowerShell
 
@@ -242,15 +242,17 @@ powershell -ExecutionPolicy Bypass -File F:\cc-agent\start-cc-connect.ps1
 
 ## 7.5 图形化一键配置器
 
-为了让新手也能更容易配置项目，仓库里额外提供了一个本地 GUI 配置工具：
+为了让新手也能更容易配置项目，仓库里额外提供了一个本地 GUI 配置工具。现在它已经改成更适合小白的模式：不需要一次配很多模型，而是支持按需勾选 Codex、Claude，或者一次只配置 1 个自定义机器人。
 
 - [FeishuRemoteConfigurator.ps1](gui/FeishuRemoteConfigurator.ps1)
 - [launch-configurator.cmd](gui/launch-configurator.cmd)
 
-它可以帮你完成这些事：
+它现在可以帮你完成这些事：
 
 - 手动填写飞书 `App ID / App Secret`
-- 填写 `MiMo / DeepSeek / Doubao` 的 `API Key`
+- 按需填写 1 个自定义机器人的 `App ID / App Secret / API Key / Base URL / 模型名称`
+- 未勾选区域自动变灰，避免误填
+- 必填项自动高亮，填完后自动变成完成状态
 - 填写 `CLI` 路径与工作目录
 - 一键生成 `config.toml`
 - 一键启动服务
@@ -268,7 +270,7 @@ powershell -ExecutionPolicy Bypass -File F:\cc-agent\start-cc-connect.ps1
 powershell -ExecutionPolicy Bypass -File F:\远程连接agent\gui\FeishuRemoteConfigurator.ps1
 ```
 
-这个工具尽量把主程序、配置和资源放在 `F` 盘，只在桌面放一个快捷方式，尽量减少对 `C` 盘的占用。
+这个工具尽量把主程序、配置和资源放在 `F` 盘，只在桌面放一个快捷方式，尽量减少对 `C` 盘的占用。对于新手，推荐顺序是：先只勾选这次要用的机器人，再把浅黄色必填项填完，然后点 `测试环境`，最后点 `一键配置并启动（推荐）`。
 
 ---
 
@@ -484,3 +486,7 @@ powershell -ExecutionPolicy Bypass -File F:\远程连接agent\gui\FeishuRemoteCo
 - 个人作品集项目
 - 校招项目展示
 - 多 Agent 协作实战案例
+
+
+
+
