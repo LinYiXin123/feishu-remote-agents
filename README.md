@@ -63,6 +63,7 @@
 - 飞书私聊机器人
 - 飞书群聊 `@` 指定机器人
 - 多机器人同时在线
+- 本地 GUI 一键配置
 - 本地命令执行
 - 本地文件读取
 - 文件结果回传
@@ -236,6 +237,38 @@ powershell -ExecutionPolicy Bypass -File F:\cc-agent\start-cc-connect.ps1
 - `LYX-MiMo`
 - `LYX-DeepSeek`
 - `LYX-Doubao`
+
+---
+
+## 7.5 图形化一键配置器
+
+为了让新手也能更容易配置项目，仓库里额外提供了一个本地 GUI 配置工具：
+
+- [FeishuRemoteConfigurator.ps1](gui/FeishuRemoteConfigurator.ps1)
+- [launch-configurator.cmd](gui/launch-configurator.cmd)
+
+它可以帮你完成这些事：
+
+- 手动填写飞书 `App ID / App Secret`
+- 填写 `MiMo / DeepSeek / Doubao` 的 `API Key`
+- 填写 `CLI` 路径与工作目录
+- 一键生成 `config.toml`
+- 一键启动服务
+- 一键配置开机自启
+- 一键创建桌面启动图标
+- 一键打开日志查看错误
+
+如果你已经在这台机器上安装好了依赖，直接双击桌面图标即可打开：
+
+- `飞书多智能体配置器`
+
+或者手动运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File F:\远程连接agent\gui\FeishuRemoteConfigurator.ps1
+```
+
+这个工具尽量把主程序、配置和资源放在 `F` 盘，只在桌面放一个快捷方式，尽量减少对 `C` 盘的占用。
 
 ---
 
